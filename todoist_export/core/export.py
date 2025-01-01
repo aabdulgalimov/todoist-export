@@ -30,9 +30,20 @@ def export(args: argparse.Namespace) -> None:
             if not answer.startswith(("y", "Y")):
                 sys.exit(1)
 
-    data = asyncio.run(_download_data())
-    output = json.dumps(data, ensure_ascii=False)
+    try:
+        data = asyncio.run(_download_data())
+    except requests.exceptions.HTTPError as err:
+        print(f"{err} ({err.response.text})", file=sys.stderr)
 
+        if err.response.status_code == 401:
+            print(
+                "Current API token is invalid (run 'todoist_export token set' to change it)",
+                file=sys.stderr,
+            )
+
+        sys.exit(1)
+
+    output = json.dumps(data, ensure_ascii=False)
     if args.file:
         with open(args.file, "w") as file:
             file.write(output)
