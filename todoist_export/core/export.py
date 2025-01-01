@@ -28,7 +28,7 @@ def export(args: argparse.Namespace) -> None:
         if path.exists():
             answer = input(f"Overwrite existing file {path.absolute()}? (y/n) ")
             if not answer.startswith(("y", "Y")):
-                sys.exit(1)
+                return
 
     try:
         data = asyncio.run(_download_data())
